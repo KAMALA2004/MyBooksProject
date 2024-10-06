@@ -1,42 +1,46 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, Alert, TouchableOpacity } from 'react-native';
-import * as ImagePicker from 'expo-image-picker';
-import * as DocumentPicker from 'expo-document-picker';
+import { View, Text, TextInput, StyleSheet, Alert, TouchableOpacity } from 'react-native';
+import { createClient } from '@supabase/supabase-js';
 
-const SellBooksScreen = ({ navigation }) => {
-  console.log('SellBooksScreen rendered');
+// Initialize Supabase
+const supabaseUrl = 'https://wbmfacuvniaezdwpdkzl.supabase.co';
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndibWZhY3V2bmlhZXpkd3Bka3psIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjgxOTU5MzcsImV4cCI6MjA0Mzc3MTkzN30.tIGW-a7UgW55BwhZf1xTeJ7OvD6B_kBKD7Y9rASMjmk'; // Your actual Supabase API key
+const supabase = createClient(supabaseUrl, supabaseKey);
 
+const SellBooksScreen = () => {
   const [pickupAddress, setPickupAddress] = useState('');
   const [landmark, setLandmark] = useState('');
   const [bookName, setBookName] = useState('');
-  const [selectedImage, setSelectedImage] = useState(null);
-  const [selectedVideo, setSelectedVideo] = useState(null);
 
-  const pickImage = async () => {
-    let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      aspect: [4, 3],
-      quality: 1,
-    });
-
-    if (!result.canceled) {
-      setSelectedImage(result.uri);
+  const submitForm = async () => {
+    if (!bookName.trim() || !pickupAddress.trim() || !landmark.trim()) {
+      Alert.alert('Error', 'All fields are required.');
+      return;
     }
-  };
 
-  const pickVideo = async () => {
-    let result = await DocumentPicker.getDocumentAsync({
-      type: "video/*",
-    });
+    try {
+      // Insert the book listing in Supabase
+      const { data, error } = await supabase
+        .from('book_listings')
+        .insert([{ 
+          book_name: bookName, 
+          pickup_address: pickupAddress, 
+          landmark: landmark,
+        }]);
 
-    if (result.type !== 'cancel') {
-      setSelectedVideo(result.uri);
+      if (error) {
+        throw new Error(error.message || 'Failed to create book listing.');
+      }
+
+      Alert.alert('Success', 'Your book has been listed for sale!');
+      setPickupAddress('');
+      setLandmark('');
+      setBookName('');
+
+    } catch (error) {
+      console.warn('Caught error:', error); // Log caught error for debugging
+      Alert.alert('Error', error.message || 'An unexpected error occurred.');
     }
-  };
-
-  const submitForm = () => {
-    Alert.alert('Submitted', 'Your book has been listed for sale!');
   };
 
   return (
@@ -70,32 +74,6 @@ const SellBooksScreen = ({ navigation }) => {
         onChangeText={setBookName}
       />
 
-      <Text style={styles.uploadLabel}>Upload Photos</Text>
-      <View style={styles.uploadContainer}>
-        <TouchableOpacity style={styles.uploadButton} onPress={pickImage}>
-          <Text style={styles.uploadButtonText}>Choose File</Text>
-        </TouchableOpacity>
-        <TextInput
-          style={styles.inputWithButton}
-          placeholder="No file chosen"
-          editable={false}
-        />
-        {selectedImage && <Text style={styles.fileText}>Image Selected</Text>}
-      </View>
-
-      <Text style={styles.uploadLabel}>Upload Video</Text>
-      <View style={styles.uploadContainer}>
-        <TouchableOpacity style={styles.uploadButton} onPress={pickVideo}>
-          <Text style={styles.uploadButtonText}>Choose File</Text>
-        </TouchableOpacity>
-        <TextInput
-          style={styles.inputWithButton}
-          placeholder="No file chosen"
-          editable={false}
-        />
-        {selectedVideo && <Text style={styles.fileText}>Video Selected</Text>}
-      </View>
-
       <TouchableOpacity style={styles.submitButton} onPress={submitForm}>
         <Text style={styles.submitButtonText}>Submit</Text>
       </TouchableOpacity>
@@ -112,13 +90,13 @@ const styles = StyleSheet.create({
   header: {
     backgroundColor: '#693F21',
     paddingVertical: 20,
-    height:120,
-    top:-20,
-    width: '111%', // Full width
+    height: 120,
+    top: -20,
+    width: '111%',
     alignItems: 'center',
     marginBottom: 20,
-    marginLeft: -20, 
-    marginRight:40,
+    marginLeft: -20,
+    marginRight: 40,
     borderBottomLeftRadius: 23,
     borderBottomRightRadius: 23,
     shadowColor: '#000',
@@ -126,17 +104,16 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 5,
     elevation: 5,
-    
   },
   headerText: {
     fontSize: 24,
     fontWeight: 'bold',
     color: '#663e22',
-    backgroundColor:"white",
+    backgroundColor: "white",
   },
   catchphrase: {
     fontSize: 16,
-    top:10,
+    top: 10,
     color: '#FFFFFF',
     marginTop: 5,
     fontWeight: 'bold',
@@ -147,7 +124,6 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     color: '#663e22',
     marginTop: 20,
-    marginBottom: 8,
   },
   input: {
     height: 40,
@@ -158,55 +134,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     backgroundColor: '#FFFFFF',
   },
-  uploadLabel: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    marginBottom: 5,
-    marginTop: 20,
-    color: '#663e22',
-  },
-  uploadContainer: {
-    position: 'relative',
-    marginBottom: -7,
-  },
-  inputWithButton: {
-    height: 40,
-    borderColor: '#9F7651',
-    borderWidth: 1,
-    borderRadius: 5,
-    marginBottom: 15,
-    paddingLeft: 90,
-    backgroundColor: '#FFFFFF',
-    position: 'relative',
-  },
-  uploadButton: {
-    position: 'absolute',
-    top: 5,
-    left: 5,
-    height: 30,
-    width: 80,
-    backgroundColor: '#9F7651',
-    borderRadius: 5,
-    justifyContent: 'center',
-    alignItems: 'center',
-    zIndex: 1,
-  },
-  uploadButtonText: {
-    color: '#FFFFFF',
-  },
-  fileText: {
-    marginTop: 10,
-    fontSize: 14,
-    color: '#663e22',
-  },
   submitButton: {
     backgroundColor: '#9F7651',
     paddingVertical: 12,
-    paddingHorizontal: 40, // Smaller width
+    paddingHorizontal: 40,
     borderRadius: 7,
     alignItems: 'center',
-    marginTop: 40, // More space above the button
-    alignSelf: 'center', // Center the button horizontally
+    marginTop: 20,
   },
   submitButtonText: {
     color: '#FFFFFF',

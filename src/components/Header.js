@@ -1,19 +1,25 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import Icon from 'react-native-vector-icons/MaterialIcons';
 
 const Header = () => {
   return (
     <View style={styles.headerContainer}>
+      {/* Menu Icon */}
       <TouchableOpacity style={styles.menuIconContainer}>
-        <Image source={require('../../assets/menu-icon.png')} style={styles.icon} />
+        <Icon name="menu" size={24} color="#FFFFFF" />
       </TouchableOpacity>
+      
+      {/* Title */}
       <Text style={styles.headerTitle}>WingReads7</Text>
+      
+      {/* Right Side Icons */}
       <View style={styles.iconContainer}>
         <TouchableOpacity style={styles.chatIcon}>
-          <Image source={require('../../assets/chat-icon.png')} style={styles.icon} />
+          <Icon name="chat" size={24} color="#FFFFFF" />
         </TouchableOpacity>
         <TouchableOpacity style={styles.searchIcon}>
-          <Image source={require('../../assets/search-icon.png')} style={styles.icon} />
+          <Icon name="search" size={24} color="#FFFFFF" />
         </TouchableOpacity>
       </View>
     </View>
@@ -50,10 +56,6 @@ const styles = StyleSheet.create({
   },
   searchIcon: {
     marginLeft: 10,
-  },
-  icon: {
-    width: 24,
-    height: 24,
   },
 });
 

@@ -1,29 +1,26 @@
 import React from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
+import Icon from 'react-native-vector-icons/MaterialIcons';
 
-const CustomHeader = ({ navigation, leftIcon, cartIcon, profileIcon, onMenuPress }) => {
+const CustomHeader = ({ navigation, onMenuPress }) => {
   return (
     <View style={styles.header}>
-      {/* Left Side: Logo */}
+      {/* Left Side: Logo and Title */}
       <View style={styles.leftContainer}>
-        {leftIcon && <Image source={leftIcon} style={styles.logo} />}
+        <Icon name="menu-book" size={30} color="#FFFFFF" style={styles.logo} />
         <Text style={styles.title}>WingReads7</Text>
       </View>
 
       {/* Right Side: Cart, Profile, and Menu Icons */}
       <View style={styles.rightContainer}>
-        {cartIcon && (
-          <TouchableOpacity onPress={() => navigation.navigate('Cart')} style={styles.iconButton}>
-            <Image source={cartIcon} style={styles.icon} />
-          </TouchableOpacity>
-        )}
-        {profileIcon && (
-          <TouchableOpacity onPress={() => navigation.navigate('Profile')} style={styles.iconButton}>
-            <Image source={profileIcon} style={styles.icon} />
-          </TouchableOpacity>
-        )}
+        <TouchableOpacity onPress={() => navigation.navigate('Cart')} style={styles.iconButton}>
+          <Icon name="shopping-cart" size={25} color="#FFFFFF" />
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => navigation.navigate('Profile')} style={styles.iconButton}>
+          <Icon name="person" size={25} color="#FFFFFF" />
+        </TouchableOpacity>
         <TouchableOpacity onPress={onMenuPress} style={styles.iconButton}>
-          <Image source={require('../../assets/menu-icon.png')} style={styles.icon} />
+          <Icon name="menu" size={25} color="#FFFFFF" />
         </TouchableOpacity>
       </View>
     </View>
@@ -48,8 +45,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   logo: {
-    width: 40,
-    height: 40,
     marginRight: 10,
   },
   title: {
@@ -59,11 +54,6 @@ const styles = StyleSheet.create({
   },
   iconButton: {
     padding: 10,
-  },
-  icon: {
-    width: 25,
-    height: 25,
-    resizeMode: 'contain', // Ensure image is scaled correctly
   },
 });
 
